@@ -11,15 +11,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/TextAppearance.WearDiag.Title"
+        android:background="@color/accent"
         android:textSize="27sp"
-        android:layout_gravity="center_horizontal"
-        android:text="15:101"/>
+        android:text="15:10:120"/>
 
     <TextView
         android:id="@+id/tv_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/TextAppearance.WearDiag.Message"
+        android:background="@color/accent"
         android:layout_gravity="center_horizontal"
         android:text="Fri, Jul 14 2015"/>
 
@@ -49,6 +50,7 @@
             android:textStyle="bold"
             android:textSize="22sp"
             android:layout_marginLeft="5dp"
+            android:background="@color/accent"
             android:text="15"/>
         <TextView
             android:id="@+id/tv_min_temp"
@@ -57,6 +59,7 @@
             style="@style/TextAppearance.WearDiag.Message"
             android:textSize="22sp"
             android:layout_marginLeft="5dp"
+            android:background="@color/accent"
             android:text="16"/>
     </LinearLayout>+
 </LinearLayout>

@@ -25,6 +25,10 @@
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
 
+    <!--Permission required for wear app-->
+    <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <!-- Permissions required to make our UI more friendly -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 

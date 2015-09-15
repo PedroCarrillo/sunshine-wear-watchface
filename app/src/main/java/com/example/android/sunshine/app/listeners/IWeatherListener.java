@@ -1,5 +1,7 @@
 package com.example.android.sunshine.app.listeners;
 
+import android.graphics.Bitmap;
+
 import com.google.android.gms.wearable.DataMap;
 
 /**
@@ -8,5 +10,6 @@ import com.google.android.gms.wearable.DataMap;
 public interface IWeatherListener {
 
     void getWeatherData(DataMap weatherDataMap);
+    void sendWeatherIcon(Bitmap weatherIcon);
 
 }

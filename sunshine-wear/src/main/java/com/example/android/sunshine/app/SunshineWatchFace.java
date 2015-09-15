@@ -44,8 +44,10 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Node;
@@ -201,49 +203,27 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onConnected(Bundle bundle) {
-            Wearable.DataApi.addListener(mGoogleApiClient, new DataApi.DataListener() {
-                @Override
-                public void onDataChanged(DataEventBuffer dataEvents) {
-                    Log.d(TAG, "Your data is changed");
-                }
-            });
-
-            Wearable.NodeApi.addListener(mGoogleApiClient, new NodeApi.NodeListener() {
-                @Override
-                public void onPeerConnected(Node node) {
-                    obtainWeatherInfo();
-                    Log.d(TAG, "A node is connected and its id: " + node.getId());
-                }
-                @Override
-                public void onPeerDisconnected(Node node) {
-                    Log.d(TAG, "A node is disconnected and its id: " + node.getId());
-                }
-            });
-
-            Wearable.MessageApi.addListener(mGoogleApiClient, new MessageApi.MessageListener() {
-                @Override
-                public void onMessageReceived(MessageEvent messageEvent) {
-                    Log.d(TAG, "You have a message from " + messageEvent.getPath());
-                    if(messageEvent.getPath().equalsIgnoreCase(SunshineWearUtils.PATH_WEATHER_UPDATE)){
-                        byte[] rawData = messageEvent.getData();
-                        DataMap weatherDataMap = DataMap.fromByteArray(rawData);
-                        mMaxTemp = weatherDataMap.getString("max_temp");
-                        mMinTemp = weatherDataMap.getString("low_temp");
-//                        mWeatherImage = loadBitmapFromAsset(weatherDataMap.getAsset(KEY_WEATHER_ICON));
-                        invalidate();
-                    }
-                }
-            });
-
+            Wearable.DataApi.addListener(mGoogleApiClient, this);
+            Wearable.NodeApi.addListener(mGoogleApiClient, this);
+            Wearable.MessageApi.addListener(mGoogleApiClient, this);
         }
 
-        public static final  String KEY_WEATHER_LOW_TEMP   = "low_temp";
-        public static final  String KEY_WEATHER_MAX_TEMP    = "max_temp";
-        public static final  String KEY_WEATHER_ICON      = "weather_icon";
+        public static final  String KEY_WEATHER_LOW_TEMP = "low_temp";
+        public static final  String KEY_WEATHER_MAX_TEMP = "max_temp";
+        public static final  String KEY_WEATHER_ICON = "weather_icon";
 
         @Override
         public void onDataChanged(DataEventBuffer dataEventBuffer) {
-
+            for (DataEvent event : dataEventBuffer) {
+                if (event.getType() == DataEvent.TYPE_CHANGED &&
+                        event.getDataItem().getUri().getPath().equals("/image")) {
+                    event.getDataItem();
+                    DataMapItem dataMapItem = DataMapItem.fromDataItem(event.getDataItem());
+                    Asset profileAsset = dataMapItem.getDataMap().getAsset(KEY_WEATHER_ICON);
+                    mWeatherImage = loadBitmapFromAsset(profileAsset);
+                    invalidate();
+                }
+            }
         }
 
         @Override
@@ -258,12 +238,20 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onMessageReceived(MessageEvent messageEvent) {
-
+            Log.d(TAG, "You have a message from " + messageEvent.getPath());
+            if(messageEvent.getPath().equalsIgnoreCase(SunshineWearUtils.PATH_WEATHER_UPDATE)){
+                byte[] rawData = messageEvent.getData();
+                DataMap weatherDataMap = DataMap.fromByteArray(rawData);
+                mMaxTemp = weatherDataMap.getString("max_temp");
+                mMinTemp = weatherDataMap.getString("low_temp");
+//                        mWeatherImage = loadBitmapFromAsset(weatherDataMap.getAsset(KEY_WEATHER_ICON));
+                invalidate();
+            }
         }
 
         @Override
         public void onPeerConnected(Node node) {
-
+            obtainWeatherInfo();
         }
 
         @Override
@@ -272,7 +260,7 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
         }
 
         private void initFormats() {
-            mDayOfWeekFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
+            mDayOfWeekFormat = new SimpleDateFormat("ddd, MM d yyyy", Locale.getDefault());
             mDayOfWeekFormat.setCalendar(mCalendar);
             mDateFormat = DateFormat.getDateFormat(SunshineWatchFace.this);
             mDateFormat.setCalendar(mCalendar);
@@ -487,6 +475,7 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
                 Log.w(TAG, "Requested an unknown Asset.");
                 return null;
             }
+            invalidate();
             // decode the stream into a bitmap
             return BitmapFactory.decodeStream(assetInputStream);
         }

@@ -22,6 +22,8 @@ import com.example.android.sunshine.app.listeners.IWeatherListener;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,7 +49,6 @@ public class TodayWeatherAsyncTask  extends AsyncTask<Void, Void, Weather>{
     public static final  String KEY_WEATHER_MAX_TEMP    = "max_temp";
     public static final  String KEY_WEATHER_ICON      = "weather_icon";
 
-    private GoogleApiClient mGoogleApiClient;
     private IWeatherListener weatherListener;
 
     public TodayWeatherAsyncTask(IWeatherListener weatherListener) {
@@ -140,19 +141,18 @@ public class TodayWeatherAsyncTask  extends AsyncTask<Void, Void, Weather>{
         super.onPostExecute(s);
         int weatherId = s.getWeatherId();
         String artUrl = Utility.getArtUrlForWeatherCondition(SunshineApp.getContext(), weatherId);
-
+        DataMap config = new DataMap();
+        config.putString(KEY_WEATHER_LOW_TEMP, s.getLow());
+        config.putString(KEY_WEATHER_MAX_TEMP, s.getHigh());
+        weatherListener.getWeatherData(config);
         Glide
             .with(SunshineApp.getContext())
             .load(artUrl)
                 .asBitmap()
-                .into(new SimpleTarget<Bitmap>(100,100) {
+                .into(new SimpleTarget<Bitmap>(40,40) {
                     @Override
                     public void onResourceReady(Bitmap weatherBitmap, GlideAnimation glideAnimation) {
-                        DataMap config = new DataMap();
-//                        if (weatherBitmap != null) config.putAsset(KEY_WEATHER_ICON, Utility.createAssetFromBitmap(weatherBitmap));
-                        config.putString(KEY_WEATHER_LOW_TEMP, s.getLow());
-                        config.putString(KEY_WEATHER_MAX_TEMP, s.getHigh());
-                        weatherListener.getWeatherData(config);
+                        weatherListener.sendWeatherIcon(weatherBitmap);
                     }
                 });
 

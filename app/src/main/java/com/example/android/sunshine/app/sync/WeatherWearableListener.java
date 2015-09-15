@@ -1,17 +1,23 @@
 package com.example.android.sunshine.app.sync;
 
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.example.android.sunshine.app.SunshineApp;
+import com.example.android.sunshine.app.Utility;
 import com.example.android.sunshine.app.listeners.IWeatherListener;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 
@@ -48,6 +54,11 @@ public class WeatherWearableListener extends WearableListenerService implements 
             public void getWeatherData(DataMap weatherDataMap) {
                 sendResponseToDevices(weatherDataMap);
             }
+
+            @Override
+            public void sendWeatherIcon(Bitmap weatherIcon) {
+                sendWeatherIconToDevices(weatherIcon);
+            }
         });
         todayWeatherAsyncTask.execute();
     }
@@ -62,7 +73,7 @@ public class WeatherWearableListener extends WearableListenerService implements 
         Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
             @Override
             public void onResult(NodeApi.GetConnectedNodesResult getConnectedNodesResult) {
-                for(Node node: getConnectedNodesResult.getNodes()){
+                for (Node node : getConnectedNodesResult.getNodes()) {
                     Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), PATH_WEATHER_UPDATE, weatherDataMap.toByteArray())
                             .setResultCallback(
                                     new ResultCallback<MessageApi.SendMessageResult>() {
@@ -75,5 +86,23 @@ public class WeatherWearableListener extends WearableListenerService implements 
                 }
             }
         });
+    }
+
+    private static void sendWeatherIconToDevices(Bitmap weatherIcon) {
+        PutDataMapRequest dataMap = PutDataMapRequest.create("/image");
+        dataMap.getDataMap().putAsset(TodayWeatherAsyncTask.KEY_WEATHER_ICON, Utility.createAssetFromBitmap(weatherIcon));
+        PutDataRequest request = dataMap.asPutDataRequest();
+        PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi.putDataItem(mGoogleApiClient, request);
+        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+            @Override
+            public void onResult(DataApi.DataItemResult dataItemResult) {
+                // something
+            }
+        });
+    }
+
+    @Override
+    public void sendWeatherIcon(Bitmap weatherIcon) {
+        sendWeatherIconToDevices(weatherIcon);
     }
 }

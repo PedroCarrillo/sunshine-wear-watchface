@@ -9,7 +9,7 @@ import com.google.android.gms.wearable.DataMap;
  */
 public interface IWeatherListener {
 
-    void getWeatherData(DataMap weatherDataMap);
+    void sendWeatherData(DataMap weatherDataMap);
     void sendWeatherIcon(Bitmap weatherIcon);
 
 }

@@ -9,6 +9,7 @@ import com.example.android.sunshine.app.listeners.IWeatherListener;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataMap;
@@ -51,7 +52,7 @@ public class WeatherWearableListener extends WearableListenerService implements 
         if(mGoogleApiClient == null)  mGoogleApiClient = new GoogleApiClient.Builder(SunshineApp.getContext()).addApi( Wearable.API ).build();
         TodayWeatherAsyncTask todayWeatherAsyncTask = new TodayWeatherAsyncTask(new IWeatherListener() {
             @Override
-            public void getWeatherData(DataMap weatherDataMap) {
+            public void sendWeatherData(DataMap weatherDataMap) {
                 sendResponseToDevices(weatherDataMap);
             }
 
@@ -64,7 +65,7 @@ public class WeatherWearableListener extends WearableListenerService implements 
     }
 
     @Override
-    public void getWeatherData(final DataMap weatherDataMap) {
+    public void sendWeatherData(final DataMap weatherDataMap) {
         sendResponseToDevices(weatherDataMap);
     }
 
@@ -99,6 +100,10 @@ public class WeatherWearableListener extends WearableListenerService implements 
                 // something
             }
         });
+//        Asset asset =  Utility.createAssetFromBitmap(weatherIcon);
+//        PutDataRequest request = PutDataRequest.create("/image");
+//        request.putAsset(TodayWeatherAsyncTask.KEY_WEATHER_ICON, asset);
+//        Wearable.DataApi.putDataItem(mGoogleApiClient, request);
     }
 
     @Override

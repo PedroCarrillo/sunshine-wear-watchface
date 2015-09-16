@@ -217,10 +217,12 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
             for (DataEvent event : dataEventBuffer) {
                 if (event.getType() == DataEvent.TYPE_CHANGED &&
                         event.getDataItem().getUri().getPath().equals("/image")) {
-                    event.getDataItem();
+                    Log.d(TAG, "onDataChanged " + event.toString());
+//                    event.getDataItem();
                     DataMapItem dataMapItem = DataMapItem.fromDataItem(event.getDataItem());
                     Asset profileAsset = dataMapItem.getDataMap().getAsset(KEY_WEATHER_ICON);
                     mWeatherImage = loadBitmapFromAsset(profileAsset);
+                    Log.d(TAG, "onDataChanged " + (mWeatherImage == null));
                     invalidate();
                 }
             }
@@ -480,20 +482,6 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
             return BitmapFactory.decodeStream(assetInputStream);
         }
 
-    }
-
-    public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        float scaleWidth = ((float) newWidth) / width;
-        float scaleHeight = ((float) newHeight) / height;
-        // create a matrix for the manipulation
-        Matrix matrix = new Matrix();
-        // resize the bit map
-        matrix.postScale(scaleWidth, scaleHeight);
-        // recreate the new Bitmap
-        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
-        return resizedBitmap;
     }
 
     private static class EngineHandler extends Handler {

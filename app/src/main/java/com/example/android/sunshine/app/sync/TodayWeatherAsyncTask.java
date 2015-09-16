@@ -1,31 +1,16 @@
 package com.example.android.sunshine.app.sync;
 
-import android.app.Application;
-import android.content.ContentValues;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.text.format.Time;
 import android.util.Log;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.example.android.sunshine.app.SunshineApp;
 import com.example.android.sunshine.app.Utility;
 import com.example.android.sunshine.app.data.Weather;
-import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.listeners.IWeatherListener;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.PutDataRequest;
-import com.google.android.gms.wearable.Wearable;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,11 +18,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.annotation.Target;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Vector;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by pcarrillo on 14/09/2015.
@@ -144,17 +126,19 @@ public class TodayWeatherAsyncTask  extends AsyncTask<Void, Void, Weather>{
         DataMap config = new DataMap();
         config.putString(KEY_WEATHER_LOW_TEMP, s.getLow());
         config.putString(KEY_WEATHER_MAX_TEMP, s.getHigh());
-        weatherListener.getWeatherData(config);
-        Glide
-            .with(SunshineApp.getContext())
-            .load(artUrl)
-                .asBitmap()
-                .into(new SimpleTarget<Bitmap>(40,40) {
-                    @Override
-                    public void onResourceReady(Bitmap weatherBitmap, GlideAnimation glideAnimation) {
-                        weatherListener.sendWeatherIcon(weatherBitmap);
-                    }
-                });
+        weatherListener.sendWeatherData(config);
+        int artResourceId = Utility.getArtResourceForWeatherCondition(weatherId);
+        weatherListener.sendWeatherIcon(Utility.getResizedBitmap(BitmapFactory.decodeResource(SunshineApp.getContext().getResources(), artResourceId),40,40));
+//        Glide
+//            .with(SunshineApp.getContext())
+//            .load(artUrl)
+//                .asBitmap()
+//                .into(new SimpleTarget<Bitmap>(40,40) {
+//                    @Override
+//                    public void onResourceReady(Bitmap weatherBitmap, GlideAnimation glideAnimation) {
+//
+//                    }
+//                });
 
     }
 
